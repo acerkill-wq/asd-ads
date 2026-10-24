@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Реклама журнала АСД — панель</title>
+<style>
+:root{--navy:#14264c;--pink:#ff2c69;--ink:#1d2540;--soft:#f4f6fb;--line:#dfe4ef;--ok:#1f9d55;--warn:#d98a00;--bad:#d6264d}
+*{box-sizing:border-box}body{margin:0;font:15px/1.5 Inter,-apple-system,"Segoe UI",Arial,sans-serif;color:var(--ink);background:var(--soft)}
+header{background:var(--navy);color:#fff;padding:14px 20px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+header h1{font-size:17px;margin:0;font-weight:700;letter-spacing:.02em}header small{opacity:.7}
+.demo{background:#fff4d6;color:#7a5200;padding:8px 20px;font-size:13px}
+nav{display:flex;gap:4px;margin-left:auto}nav button{background:transparent;border:0;color:#cfd7ee;padding:8px 14px;border-radius:6px;font:inherit;cursor:pointer}
+nav button.on{background:var(--pink);color:#fff}
+main{max-width:1180px;margin:0 auto;padding:20px}
+.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px}
+table{width:100%;border-collapse:collapse}th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#5b6483;text-align:left;padding:8px 10px;border-bottom:2px solid var(--line)}
+td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle}tr.row{cursor:pointer}tr.row:hover td{background:var(--soft)}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:700;color:#fff}
+.s-live{background:var(--ok)}.s-draft{background:#7b86a8}.s-paused{background:var(--warn)}.s-ended{background:#444}
+.btn{background:var(--pink);color:#fff;border:0;border-radius:6px;padding:9px 16px;font:inherit;font-weight:700;cursor:pointer}
+.btn.sec{background:#fff;color:var(--navy);border:1px solid var(--navy)}.btn.sm{padding:5px 10px;font-size:13px}
+.grid{display:grid;grid-template-columns:minmax(320px,1fr) minmax(320px,1.1fr);gap:18px}@media(max-width:900px){.grid{grid-template-columns:1fr}}
+label{display:block;font-size:12px;font-weight:700;color:#5b6483;margin:10px 0 3px;text-transform:uppercase;letter-spacing:.05em}
+input,select,textarea{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font:inherit;background:#fff}textarea{min-height:64px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.chips label{display:inline-flex;align-items:center;gap:5px;margin:4px 12px 0 0;text-transform:none;font-size:14px;font-weight:500;color:var(--ink);letter-spacing:0}.chips input{width:auto}
+.hint{font-size:12px;color:#5b6483;margin-top:3px}.warn{color:var(--bad);font-weight:600}
+.prev{background:#fff;border:1px dashed var(--line);border-radius:10px;padding:0 14px;max-width:760px}
+.kpi{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px}.kpi div{flex:1;min-width:130px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px}.kpi b{font-size:26px;display:block;color:var(--navy)}.kpi span{font-size:12px;color:#5b6483;text-transform:uppercase;letter-spacing:.06em}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;min-width:80px}.bar i{display:block;height:100%;background:var(--pink)}
+.chk{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}.dot{width:12px;height:12px;border-radius:50%;margin-top:5px;flex:none}
+.slotbox{border:2px dashed var(--navy);border-radius:8px;padding:10px 12px;margin:8px 0;background:#fff}
+.hide{display:none}.right{margin-left:auto}.mut{color:#5b6483}
+</style></head><body>
+<header><h1>РЕКЛАМА ЖУРНАЛА АСД</h1><small>внутренний «Директ»</small>
+<nav id="nav"><button data-t="camp" class="on">Кампании</button><button data-t="stat">Статистика</button><button data-t="slots">Слоты</button><button data-t="check">Проверка</button></nav></header>
+<div class="demo">Макет: данные демонстрационные, хранятся только в этом браузере. Реальные показы и клики появятся после подключения базы.</div>
+<div id="login" class="hide" style="position:fixed;inset:0;background:var(--navy);z-index:9;display:flex;align-items:center;justify-content:center"><form id="lf" class="card" style="width:320px"><h3 style="margin:0 0 8px">Вход в рекламу журнала</h3><label>Почта</label><input id="l_mail" type="email" autocomplete="username" value="ads@asd-ads.ru"><label>Пароль</label><input id="l_pass" type="password" autocomplete="current-password"><div class="hint warn" id="l_err"></div><button class="btn" style="margin-top:12px;width:100%">Войти</button></form></div>
+<main>
+<section id="t-camp"><div style="display:flex;gap:10px;margin-bottom:12px;align-items:center"><h2 style="margin:0">Кампании</h2><button class="btn right" id="new">+ Новая кампания</button></div>
+<div class="card" style="padding:0;overflow:auto"><table id="list"></table></div>
+<div id="edit" class="hide" style="margin-top:18px"><div class="grid">
+<div class="card"><h3 style="margin:0 0 4px" id="et">Кампания</h3>
+<label>Название (видно только вам)</label><input id="f_name">
+<div class="two"><div><label>Метка для utm_campaign</label><input id="f_slug" placeholder="rim-5-lovushek"></div><div><label>Статус</label><select id="f_status"><option value="draft">Черновик</option><option value="live">Идёт</option><option value="paused">Пауза</option><option value="ended">Окончена</option></select></div></div>
+<label>Вид</label><div class="two"><select id="f_layout"><option value="card">Карточка</option><option value="strip">Полоска</option></select><select id="f_variant"><option value="1">Синяя</option><option value="2">Розовая</option></select></div>
+<label>Где показывать (слоты)</label><div class="chips" id="f_slots"></div>
+<label>Темы статей (пусто = везде)</label><div class="chips" id="f_topics"></div>
+<div class="two"><div><label>Бейдж</label><input id="f_tag"></div><div><label>Вес в ротации (1–10)</label><input id="f_weight" type="number" min="1" max="10"></div></div>
+<div class="two"><div><label>Левая колонка: крупное</label><input id="f_big" placeholder="50+"></div><div><label>Подпись под ним</label><input id="f_caption"></div></div>
+<label>Картинка (ссылка fileservice GetCourse; заменяет левую колонку)</label><input id="f_image" placeholder="https://fs.getcourse.ru/…"><div class="hint" id="imgwarn"></div>
+<label>Заголовок</label><input id="f_title"><label>Текст</label><textarea id="f_body"></textarea><label>Пункты списка (по одному в строке)</label><textarea id="f_bullets"></textarea>
+<div class="two"><div><label>Текст кнопки</label><input id="f_btn"></div><div><label>Ссылка (только наши сайты)</label><input id="f_url"></div></div>
+<div class="hint" id="utmprev"></div><div class="hint warn" id="urlwarn"></div>
+<div class="two"><div><label>Показывать с</label><input id="f_start" type="date"></div><div><label>Показывать по (после даты отключится сама)</label><input id="f_end" type="date"></div></div>
+<label>Дата события (вебинар/акция), для проверки «не протухло»</label><input id="f_event" type="date"><div class="hint warn" id="datewarn"></div>
+<div style="display:flex;gap:8px;margin-top:14px"><button class="btn" id="save">Сохранить</button><button class="btn sec" id="cancel">Закрыть</button><button class="btn sec right" id="dup">Дублировать</button></div></div>
+<div><div class="card"><h3 style="margin:0 0 8px">Как увидят читатели</h3><div class="prev" id="prev"></div></div></div></div></div></section>
+
+<section id="t-stat" class="hide"><h2 style="margin-top:0">Статистика за 14 дней</h2><div class="kpi" id="kpi"></div><div class="card" style="padding:0;overflow:auto"><table id="stats"></table></div>
+<p class="mut">В макете цифры придуманы. В рабочей версии это показы (баннер был виден на экране не менее чем наполовину) и клики по кнопке; заявки по utm_campaign берём из GetCourse позже.</p></section>
+
+<section id="t-slots" class="hide"><h2 style="margin-top:0">Рекламные места в статье</h2><div class="grid"><div class="card" id="slotlist"></div><div class="card"><b>Схема статьи</b>
+<div class="slotbox"><b>lead</b> · после лида (первый экран, самое дорогое место)</div><div class="mut" style="padding:6px 12px">… заголовок и текст …</div>
+<div class="slotbox"><b>mid</b> · середина статьи</div><div class="mut" style="padding:6px 12px">… текст …</div><div class="slotbox"><b>end</b> · конец статьи, перед «Что дальше»</div>
+<div class="slotbox" style="border-style:solid"><b>side</b> · боковая лента (на компьютере справа, на телефоне под статьёй)</div></div></div></section>
+
+<section id="t-check" class="hide"><h2 style="margin-top:0">Ежедневная проверка «реклама не протухла»</h2><div class="card" id="checks"></div>
+<p class="mut">Проверка работает раз в день утром: страница-назначение отвечает 200, дата события не прошла, рубли в тексте совпадают с хранителем цен. Если что-то красное, придёт сообщение, кампания сама на паузу не ставится.</p></section>
+</main>
+<script src="config.js"></script>
+<script src="asd-ads.js" data-mock="1"></script>
+<script>
+var SLOTS=[['lead','После лида'],['mid','Середина'],['end','Конец статьи'],['side','Боковая лента']];
+var TOPICS=[['nmck','НМЦК'],['rim','РИМ'],['indexy','Индексы'],['ks','КС-2/КС-3'],['novichok','Для начинающих']];
+var KEY='asdads_demo_v1';
+function day(n){var x=new Date();x.setDate(x.getDate()+n);return x.toISOString().slice(0,10)}
+var SEED=[
+{id:'c1',slug:'cenoobrazovanie-12-izmeneniy',name:'Вебинар «12 изменений» (ценообразование)',status:'live',layout:'card',variant:1,slots:['lead','mid'],topics:['nmck','indexy'],tag:'Рекомендуем',big:'50+',caption:'документов в «Арсенале сметчика»: индексы, РИМ, НМЦК, методики',title:'12 главных изменений в сметном деле за первое полугодие 2026',body:'Бесплатный вебинар для сметчиков и руководителей сметных отделов.',bullets:['Бонус каждому участнику: «Арсенал сметчика», нормативная база в действующих редакциях на август 2026 года'],btn_text:'Занять место на вебинаре',url:'https://academia-bti.ru/cenoobrazovanie',start_at:day(-3),end_at:day(9),event_at:day(10),weight:3,v:420,c:31},
+{id:'c2',slug:'rim-5-lovushek',name:'Вебинар «5 ловушек РИМ»',status:'live',layout:'card',variant:2,slots:['mid','end'],topics:['rim'],tag:'Для практиков РИМ',big:'5',caption:'ловушек РИМ, в которые попадаются даже опытные сметчики',title:'А вы точно умеете работать РИМ?',body:'Бесплатный вебинар: пять ситуаций, которые чаще всего приводят к замечаниям.',bullets:['Бонус: схема учёта затрат на перевозку при РИМ'],btn_text:'Зарегистрироваться на вебинар',url:'https://academia-bti.ru/rim/smeta',start_at:day(-3),end_at:day(-1),event_at:day(-1),weight:2,v:310,c:18},
+{id:'c3',slug:'kns-nachalo',name:'Курс «Инженер-сметчик» с нуля',status:'live',layout:'strip',variant:1,slots:['end','side'],topics:[],tag:'',big:'',caption:'',title:'Только начинаете путь в сметном деле?',body:'Курс «Инженер-сметчик» с нуля: записи, проверка домашних заданий куратором, учебная ГРАНД-Смета.',bullets:[],btn_text:'О курсе для начинающих',url:'https://online.academia-bti.ru/kns/smeta',start_at:day(-30),end_at:'',event_at:'',weight:1,v:880,c:22},
+{id:'c4',slug:'dr12-podarok',name:'Акция «12 лет АСД» (черновик)',status:'draft',layout:'card',variant:2,slots:['lead'],topics:[],tag:'12 лет АСД',big:'12',caption:'лет с вами',title:'Праздничные условия до 30 октября',body:'Цены и подарки возьмём только из хранителя цен.',bullets:[],btn_text:'Смотреть условия',url:'https://academia-bti.ru/dr12',start_at:day(0),end_at:day(5),event_at:day(5),weight:1,v:0,c:0}];
+var LIVE=!!(window.ASD_ADS_CFG&&window.ASD_ADS_CFG.api),CFG=window.ASD_ADS_CFG||{},data=[],TOKEN=null;
+if(LIVE){try{TOKEN=sessionStorage.getItem('asdads_tok')}catch(e){}}
+function msk(ts){return ts?new Date(ts).toLocaleDateString('sv-SE',{timeZone:'Europe/Moscow'}):''}
+function api(path,opt){opt=opt||{};var h={apikey:CFG.key,'Content-Type':'application/json'};if(TOKEN)h.Authorization='Bearer '+TOKEN;if(opt.prefer)h.Prefer=opt.prefer;
+ return fetch(CFG.api+path,{method:opt.method||'GET',headers:h,body:opt.body?JSON.stringify(opt.body):undefined}).then(function(r){if(r.status===401){TOKEN=null;try{sessionStorage.removeItem('asdads_tok')}catch(e){}showLogin();throw new Error('auth')}return r.text().then(function(t){var j=t?JSON.parse(t):null;if(!r.ok)throw new Error((j&&j.message)||r.status);return j})})}
+function fromDb(r){return{id:r.id,slug:r.slug,name:r.name,status:r.status,layout:r.layout,variant:r.variant,slots:r.slots||[],topics:r.topics||[],tag:r.tag||'',big:r.big||'',caption:r.caption||'',image_url:r.image_url||'',title:r.title,body:r.body||'',bullets:r.bullets||[],btn_text:r.btn_text,url:r.url,start_at:msk(r.start_at),end_at:msk(r.end_at),event_at:msk(r.event_at),weight:r.weight,v:0,c:0}}
+function toDb(t){var o={slug:t.slug,name:t.name,status:t.status,layout:t.layout,variant:t.variant,slots:t.slots,topics:t.topics,tag:t.tag||null,big:t.big||null,caption:t.caption||null,image_url:t.image_url||null,title:t.title,body:t.body||null,bullets:t.bullets,btn_text:t.btn_text,url:t.url,weight:t.weight,
+ start_at:t.start_at?t.start_at+'T00:00:00+03:00':null,end_at:t.end_at?t.end_at+'T23:59:59+03:00':null,event_at:t.event_at?t.event_at+'T12:00:00+03:00':null};return o}
+function loadAll(){return api('/rest/v1/ad_campaigns?select=*&order=created_at.desc').then(function(rows){data=rows.map(fromDb);return api('/rest/v1/ad_stats?select=campaign_id,views,clicks')}).then(function(st){st.forEach(function(x){data.forEach(function(c){if(c.id===x.campaign_id){c.v+=x.views;c.c+=x.clicks}})})})}
+var store={save:function(t){if(!LIVE){var i=data.indexOf(cur);if(i<0)data.push(t);else data[i]=t;try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){}return Promise.resolve(t)}
+ var ex=data.some(function(c){return c.id===t.id&&!cur._new});
+ return(ex?api('/rest/v1/ad_campaigns?id=eq.'+t.id,{method:'PATCH',body:toDb(t),prefer:'return=minimal'}):api('/rest/v1/ad_campaigns',{method:'POST',body:toDb(t),prefer:'return=minimal'})).then(loadAll).then(function(){return t})}};
+function showLogin(){$('login').classList.remove('hide')}
+var $=function(i){return document.getElementById(i)},cur=null;
+var ST={live:'Идёт',draft:'Черновик',paused:'Пауза',ended:'Окончена'};
+function eff(c){var t=day(0);if(c.status==='live'&&c.end_at&&c.end_at<t)return'ended';if(c.status==='live'&&c.start_at&&c.start_at>t)return'draft';return c.status}
+function fmt(d){return d?d.split('-').reverse().join('.'):'—'}
+function ctr(c){return c.v?(c.c/c.v*100).toFixed(1)+'%':'—'}
+function drawList(){var h='<tr><th>Кампания</th><th>Статус</th><th>Слоты</th><th>Период</th><th>Вес</th><th>Показы</th><th>Клики</th><th>CTR</th></tr>';
+data.forEach(function(c){var e=eff(c);h+='<tr class="row" data-id="'+c.id+'"><td><b>'+c.name+'</b><div class="mut" style="font-size:12px">'+c.slug+'</div></td><td><span class="pill s-'+e+'">'+ST[e]+'</span>'+(e!==c.status?'<div class="hint">дата вышла, отключилась сама</div>':'')+'</td><td>'+(c.slots.join(', ')||'все')+'</td><td>'+fmt(c.start_at)+' — '+fmt(c.end_at)+'</td><td>'+c.weight+'</td><td>'+c.v+'</td><td>'+c.c+'</td><td>'+ctr(c)+'</td></tr>'});$('list').innerHTML=h;
+[].forEach.call($('list').querySelectorAll('.row'),function(r){r.onclick=function(){open(r.dataset.id)}})}
+function chips(id,arr,sel){$(id).innerHTML=arr.map(function(a){return'<label><input type="checkbox" value="'+a[0]+'"'+(sel.indexOf(a[0])>=0?' checked':'')+'>'+a[1]+'</label>'}).join('')}
+function chosen(id){return[].map.call($(id).querySelectorAll('input:checked'),function(i){return i.value})}
+function open(id){cur=data.filter(function(c){return c.id===id})[0];if(!cur){cur={id:'c'+Date.now(),slug:'',name:'',status:'draft',layout:'card',variant:1,slots:['mid'],topics:[],tag:'Рекомендуем',big:'',caption:'',title:'',body:'',bullets:[],btn_text:'Подробнее',url:'https://academia-bti.ru/',start_at:day(0),end_at:'',event_at:'',weight:1,v:0,c:0,_new:1}}
+$('edit').classList.remove('hide');$('et').textContent=cur._new?'Новая кампания':cur.name;
+var m={name:'name',slug:'slug',status:'status',layout:'layout',variant:'variant',tag:'tag',weight:'weight',big:'big',caption:'caption',image:'image_url',title:'title',body:'body',btn:'btn_text',url:'url',start:'start_at',end:'end_at',event:'event_at'};
+Object.keys(m).forEach(function(k){$('f_'+k).value=cur[m[k]]==null?'':cur[m[k]]});$('f_bullets').value=cur.bullets.join('\n');chips('f_slots',SLOTS,cur.slots);chips('f_topics',TOPICS,cur.topics);bind();preview();$('edit').scrollIntoView({behavior:'smooth'})}
+function read(){var o=cur,m={name:'name',slug:'slug',status:'status',layout:'layout',variant:'variant',tag:'tag',weight:'weight',big:'big',caption:'caption',image:'image_url',title:'title',body:'body',btn:'btn_text',url:'url',start:'start_at',end:'end_at',event:'event_at'};
+var t={};Object.keys(o).forEach(function(k){t[k]=o[k]});Object.keys(m).forEach(function(k){var v=$('f_'+k).value;t[m[k]]=(k==='weight'||k==='variant')?+v:v});
+t.bullets=$('f_bullets').value.split('\n').map(function(s){return s.trim()}).filter(Boolean);t.slots=chosen('f_slots');t.topics=chosen('f_topics');return t}
+function bind(){[].forEach.call($('edit').querySelectorAll('input,select,textarea'),function(i){i.oninput=i.onchange=preview})}
+function preview(){var t=read();$('prev').innerHTML=ASDAds.render(t,(t.slots[0]||'mid'))||'<p class="warn">Ссылка не из наших сайтов: баннер не покажется.</p>';
+if(!$('asdads-css')){var s=document.createElement('style');s.id='asdads-css';s.textContent=ASDAds.css;document.head.appendChild(s)}
+var u=t.url;$('urlwarn').textContent=/^https:\/\/([a-z0-9-]+\.)?(academia-bti\.ru|asdprof\.ru)(\/|\?|$)/i.test(u)?'':'Ссылка должна вести на academia-bti.ru или asdprof.ru';
+$('utmprev').textContent='Итоговая ссылка: '+(u+(u.indexOf('?')<0?'?':'&')+'utm_source=zhurnal&utm_medium=blog&utm_campaign='+(t.slug||'…')+'&utm_content='+(t.slots[0]||'слот'));
+$('imgwarn').textContent=t.image_url&&!/^https:\/\/([a-z0-9.-]*\.)?(getcourse\.(ru|cloud)|academia-bti\.ru)\//i.test(t.image_url)?'Картинка не с GetCourse: не покажется':'';
+$('datewarn').textContent=(t.event_at&&t.end_at&&t.end_at>t.event_at)?'Показ заканчивается позже даты события: сократите период':''}
+$('save').onclick=function(){var t=read();if(!t.name||!t.slug||!t.title){alert('Заполните название, метку и заголовок');return}delete t._new;store.save(t).then(function(){drawList();$('edit').classList.add('hide')}).catch(function(e){if(e.message!=='auth')alert('Не сохранилось: '+e.message)})};
+$('cancel').onclick=function(){$('edit').classList.add('hide')};$('new').onclick=function(){open('')};
+$('dup').onclick=function(){var t=read();t.id='c'+Date.now();t.slug=t.slug+'-2';t.name=t.name+' (копия)';t.status='draft';t.v=t.c=0;cur={_new:1};store.save(t).then(function(){drawList();if(!LIVE)open(t.id);else $('edit').classList.add('hide')}).catch(function(e){if(e.message!=='auth')alert('Не сохранилось: '+e.message)})};
+function drawStat(){var V=0,C=0;data.forEach(function(c){V+=c.v;C+=c.c});$('kpi').innerHTML='<div><b>'+V+'</b><span>показов</span></div><div><b>'+C+'</b><span>кликов</span></div><div><b>'+(V?(C/V*100).toFixed(1):'0')+'%</b><span>CTR</span></div><div><b>'+data.filter(function(c){return eff(c)==='live'}).length+'</b><span>идут сейчас</span></div>';
+var mx=Math.max.apply(null,data.map(function(c){return c.c}).concat([1])),h='<tr><th>Кампания</th><th>Показы</th><th>Клики</th><th>CTR</th><th>Клики (шкала)</th></tr>';data.forEach(function(c){h+='<tr><td>'+c.name+'</td><td>'+c.v+'</td><td>'+c.c+'</td><td>'+ctr(c)+'</td><td><div class="bar"><i style="width:'+(c.c/mx*100)+'%"></i></div></td></tr>'});$('stats').innerHTML=h}
+function drawSlots(){$('slotlist').innerHTML='<table><tr><th>Слот</th><th>Что это</th><th>Высота ПК/тел.</th><th>Сейчас</th></tr>'+[['lead','После лида','220 / 340'],['mid','Середина статьи','220 / 340'],['end','Конец статьи','160 / 260'],['side','Боковая лента','300 / 300']].map(function(s){var n=data.filter(function(c){return eff(c)==='live'&&(!c.slots.length||c.slots.indexOf(s[0])>=0)}).length;return'<tr><td><b>'+s[0]+'</b></td><td>'+s[1]+'</td><td>'+s[2]+'</td><td>'+n+' кампан.</td></tr>'}).join('')+'</table><p class="hint">Высота резервируется, чтобы страница не прыгала, когда подгрузится баннер.</p>'}
+function drawCheck(){var h='';data.filter(function(c){return c.status==='live'}).forEach(function(c){var items=[];
+var ended=c.end_at&&c.end_at<day(0);items.push([c.event_at&&c.event_at<day(0)?'bad':'ok',c.event_at&&c.event_at<day(0)?'Дата события '+fmt(c.event_at)+' уже прошла':'Дата события в порядке ('+fmt(c.event_at)+')']);
+items.push([ended?'warn':'ok',ended?'Период показа закончился '+fmt(c.end_at)+': отключилась сама':'Период показа идёт']);
+items.push(['ok','Страница '+c.url.replace('https://','')+' отвечает 200 (в макете условно)']);
+items.push([c.slug==='dr12-podarok'?'warn':'ok','Рубли в тексте: '+(/\d\s?\d{3}|₽|руб/.test(c.title+c.body)?'есть, сверить с хранителем цен':'не упоминаются')]);
+h+='<div style="padding:8px 0 2px"><b>'+c.name+'</b></div>'+items.map(function(i){var col={ok:'var(--ok)',warn:'var(--warn)',bad:'var(--bad)'}[i[0]];return'<div class="chk"><span class="dot" style="background:'+col+'"></span><div>'+i[1]+'</div></div>'}).join('')});$('checks').innerHTML=h||'Нет идущих кампаний'}
+$('nav').onclick=function(e){var t=e.target.dataset.t;if(!t)return;[].forEach.call($('nav').children,function(b){b.classList.toggle('on',b===e.target)});['camp','stat','slots','check'].forEach(function(s){$('t-'+s).classList.toggle('hide',s!==t)});if(t==='stat')drawStat();if(t==='slots')drawSlots();if(t==='check')drawCheck()};
+function init(){if(!LIVE){data=(function(){try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return null}})()||SEED;drawList();return}
+ document.querySelector('.demo').classList.add('hide');if(!TOKEN){showLogin();return}
+ loadAll().then(drawList).catch(function(e){if(e.message!=='auth')alert('Не загрузилось: '+e.message)})}
+$('lf').onsubmit=function(e){e.preventDefault();$('l_err').textContent='';fetch(CFG.api+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:CFG.key,'Content-Type':'application/json'},body:JSON.stringify({email:$('l_mail').value,password:$('l_pass').value})}).then(function(r){return r.json()}).then(function(j){if(!j.access_token){$('l_err').textContent='Неверная почта или пароль';return}TOKEN=j.access_token;try{sessionStorage.setItem('asdads_tok',TOKEN)}catch(x){}$('l_pass').value='';$('login').classList.add('hide');init()}).catch(function(){$('l_err').textContent='Нет связи'})};
+init();
+</script></body></html>
