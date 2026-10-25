@@ -37,6 +37,10 @@
     '.asdads-nat-img{flex:0 0 38%;background-size:cover;background-position:center;min-height:170px}.asdads-nat-body{flex:1;padding:18px 20px;min-width:0}' +
     '.asdads-nat-body h4{font-family:"Playfair Display",Georgia,serif;font-size:21px;line-height:1.25;color:#14264c;margin:0 0 8px;font-weight:800}.asdads-nat-body p{font-size:15px;line-height:1.5;margin:0 0 12px}' +
     '@media(max-width:640px){.asdads-nat{flex-direction:column;gap:0}.asdads-nat-img{flex-basis:auto;min-height:150px}}' +
+    '.asdr{position:fixed;top:96px;width:300px;z-index:60;display:none;border-radius:12px;overflow:hidden;background:linear-gradient(165deg,#14264c,#22397a 70%,#3a2a6b);color:#fff;font-family:Inter,-apple-system,Arial,sans-serif;box-shadow:0 10px 30px rgba(10,20,50,.28);padding:26px 22px 22px;box-sizing:border-box}' +
+    '.asdr *{box-sizing:border-box}.asdr-x{position:absolute;top:6px;right:8px;background:none;border:0;color:#fff;opacity:.6;font-size:22px;line-height:1;cursor:pointer;padding:4px 8px}.asdr-x:hover{opacity:1}' +
+    '.asdr .asdads-tag{position:static;display:inline-block;margin-bottom:14px}.asdr-big{font-family:"Playfair Display",Georgia,serif;font-weight:900;font-size:78px;line-height:.9;color:#ff2c69}.asdr-cap{font-size:13px;line-height:1.4;color:#dfe5f5;margin:6px 0 16px}' +
+    '.asdr h4{font-family:"Playfair Display",Georgia,serif;font-size:22px;line-height:1.2;margin:0 0 10px;font-weight:800;color:#fff}.asdr p{font-size:14px;line-height:1.5;margin:0 0 12px;color:#e8ecf8}.asdr ul{margin:0 0 16px;padding-left:18px;font-size:13.5px;line-height:1.45;color:#e8ecf8}.asdr .asdads-btn{display:block;text-align:center;width:100%}' +
     '@media(max-width:640px){.asdads-side,.asdads-img{flex-basis:100%}.asdads-side{padding:38px 20px 16px}.asdads-main{padding:22px 20px}.asdads-big{font-size:38px}}';
 
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -53,16 +57,20 @@
   function render(c, slot) {
     var href = tagUrl(c, slot);
     if (!href) return '';
+    if (c.layout === 'rail') {
+      var rl = (c.bullets || []).map(function (b) { return '<li>' + esc(b) + '</li>'; }).join('');
+      return '<div class="asdr" data-asd-cid="' + esc(c.id) + '"><button class="asdr-x" aria-label="Закрыть">&times;</button><span class="asdads-tag">' + esc(c.tag || 'Рекомендуем') + '</span>' + (c.big ? '<div class="asdr-big">' + esc(c.big) + '</div>' : '') + (c.caption ? '<div class="asdr-cap">' + esc(c.caption) + '</div>' : '') + '<h4>' + esc(c.title) + '</h4>' + (c.body ? '<p>' + esc(c.body) + '</p>' : '') + (rl ? '<ul>' + rl + '</ul>' : '') + '<a class="asdads-btn" data-asd-click href="' + esc(href) + '" target="_blank" rel="noopener">' + esc(c.btn_text || 'Подробнее') + '</a></div>';
+    }
     if (c.layout === 'banner') {
       if (!c.image_url || !IMG_OK.test(c.image_url)) return '';
       var m = c.image_mobile_url && IMG_OK.test(c.image_mobile_url) ? '<source media="(max-width:640px)" srcset="' + esc(c.image_mobile_url) + '">' : '';
-      return '<a class="asdads-bn" data-asd-click data-asd-cid="' + esc(c.id) + '" href="' + esc(href) + '"><picture>' + m + '<img src="' + esc(c.image_url) + '" alt="' + esc(c.title || '') + '" loading="lazy" onload="this.style.width=(this.naturalWidth/2)+\'px\'"></picture></a>';
+      return '<a class="asdads-bn" data-asd-click data-asd-cid="' + esc(c.id) + '" href="' + esc(href) + '" target="_blank" rel="noopener"><picture>' + m + '<img src="' + esc(c.image_url) + '" alt="' + esc(c.title || '') + '" loading="lazy" onload="this.style.width=(this.naturalWidth/2)+\'px\'"></picture></a>';
     }
     if (c.layout === 'native') {
       var im = (c.image_url && IMG_OK.test(c.image_url)) ? '<div class="asdads-nat-img" style="background-image:url(\'' + esc(c.image_url) + '\')"></div>' : '';
-      return '<div class="asdads-nat" data-asd-cid="' + esc(c.id) + '">' + im + '<div class="asdads-nat-body"><h4>' + esc(c.title) + '</h4>' + (c.body ? '<p>' + esc(c.body) + '</p>' : '') + '<a class="asdads-btn" data-asd-click href="' + esc(href) + '">' + esc(c.btn_text || 'Подробнее') + '</a></div></div>';
+      return '<div class="asdads-nat" data-asd-cid="' + esc(c.id) + '">' + im + '<div class="asdads-nat-body"><h4>' + esc(c.title) + '</h4>' + (c.body ? '<p>' + esc(c.body) + '</p>' : '') + '<a class="asdads-btn" data-asd-click href="' + esc(href) + '" target="_blank" rel="noopener">' + esc(c.btn_text || 'Подробнее') + '</a></div></div>';
     }
-    var btn = '<a class="asdads-btn" data-asd-click href="' + esc(href) + '">' + esc(c.btn_text || 'Подробнее') + '</a>';
+    var btn = '<a class="asdads-btn" data-asd-click href="' + esc(href) + '" target="_blank" rel="noopener">' + esc(c.btn_text || 'Подробнее') + '</a>';
     if (c.layout === 'strip') {
       return '<div class="asdads-strip" data-asd-cid="' + esc(c.id) + '"><span>' + (c.title ? '<b>' + esc(c.title) + '</b> ' : '') + esc(c.body || '') + '</span>' + btn.replace('class="asdads-btn"', '') .replace('<a ', '<a ') + '</div>';
     }
@@ -157,6 +165,30 @@
         } else { log('view', c, slot); }
         el.addEventListener('click', function (ev) { if (ev.target.closest && ev.target.closest('[data-asd-click],a')) log('click', c, slot); });
       });
+      // Боковая вертикальная реклама в «воздухе» справа от статьи: едет вместе с прокруткой.
+      try {
+        var topicsAll = []; slots.forEach(function (el) { (el.getAttribute('data-topics') || '').split(',').forEach(function (t) { t = t.trim(); if (t && topicsAll.indexOf(t) < 0) topicsAll.push(t); }); });
+        var rc = pick(list.filter(function (x) { return x.layout === 'rail'; }), 'side', topicsAll, ctr);
+        var closed = false; try { closed = w.sessionStorage.getItem('asdads_rail_closed') === '1'; } catch (e) {}
+        if (rc && !closed) {
+          var rh = render(rc, 'side');
+          if (rh) {
+            var rail = d.createElement('div'); rail.innerHTML = rh; rail = rail.firstChild; d.body.appendChild(rail);
+            var anchor = slots[0].getBoundingClientRect ? slots[0] : null;
+            var seen = false;
+            var place = function () {
+              var col = d.querySelector('[data-asd-slot]'); var r = col ? col.getBoundingClientRect() : null;
+              var left = r ? r.right + 28 : (w.innerWidth + 760) / 2 + 28;
+              var ok = w.innerWidth >= 1200 && left + 300 <= w.innerWidth - 8 && w.scrollY > 300;
+              rail.style.display = ok ? 'block' : 'none'; rail.style.left = left + 'px';
+              if (ok && !seen) { seen = true; log('view', rc, 'side'); }
+            };
+            w.addEventListener('scroll', place, { passive: true }); w.addEventListener('resize', place); place();
+            rail.querySelector('.asdr-x').addEventListener('click', function () { rail.remove(); try { w.sessionStorage.setItem('asdads_rail_closed', '1'); } catch (e) {} });
+            rail.addEventListener('click', function (ev) { if (ev.target.closest && ev.target.closest('a')) log('click', rc, 'side'); });
+          }
+        }
+      } catch (e) {}
     }).catch(function () { /* сервис недоступен: запасной контент остаётся */ });
   }
 
