@@ -32,6 +32,11 @@
     '.asdads-strip{background:#14264c;color:#fff;border-radius:10px;padding:18px 22px;margin:30px 0;display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between;font-family:Inter,-apple-system,Arial,sans-serif}' +
     '.asdads-strip span{font-size:16px;line-height:1.45;flex:1;min-width:220px}.asdads-strip b{color:#fff}' +
     '.asdads-strip a{background:#ff2c69;color:#fff!important;font-weight:700;text-decoration:none!important;padding:11px 20px;border-radius:6px;font-size:15px;white-space:nowrap}' +
+    '.asdads-bn{display:block;margin:28px auto;line-height:0;text-align:center}.asdads-bn img{max-width:100%;height:auto;border-radius:6px}' +
+    '.asdads-nat{display:flex;gap:18px;align-items:stretch;margin:30px 0;border:1px solid #dfe4ef;border-radius:12px;overflow:hidden;background:#fff;font-family:Inter,-apple-system,Arial,sans-serif;color:#1d2540}' +
+    '.asdads-nat-img{flex:0 0 38%;background-size:cover;background-position:center;min-height:170px}.asdads-nat-body{flex:1;padding:18px 20px;min-width:0}' +
+    '.asdads-nat-body h4{font-family:"Playfair Display",Georgia,serif;font-size:21px;line-height:1.25;color:#14264c;margin:0 0 8px;font-weight:800}.asdads-nat-body p{font-size:15px;line-height:1.5;margin:0 0 12px}' +
+    '@media(max-width:640px){.asdads-nat{flex-direction:column;gap:0}.asdads-nat-img{flex-basis:auto;min-height:150px}}' +
     '@media(max-width:640px){.asdads-side,.asdads-img{flex-basis:100%}.asdads-side{padding:38px 20px 16px}.asdads-main{padding:22px 20px}.asdads-big{font-size:38px}}';
 
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -48,6 +53,15 @@
   function render(c, slot) {
     var href = tagUrl(c, slot);
     if (!href) return '';
+    if (c.layout === 'banner') {
+      if (!c.image_url || !IMG_OK.test(c.image_url)) return '';
+      var m = c.image_mobile_url && IMG_OK.test(c.image_mobile_url) ? '<source media="(max-width:640px)" srcset="' + esc(c.image_mobile_url) + '">' : '';
+      return '<a class="asdads-bn" data-asd-click data-asd-cid="' + esc(c.id) + '" href="' + esc(href) + '"><picture>' + m + '<img src="' + esc(c.image_url) + '" alt="' + esc(c.title || '') + '" loading="lazy"></picture></a>';
+    }
+    if (c.layout === 'native') {
+      var im = (c.image_url && IMG_OK.test(c.image_url)) ? '<div class="asdads-nat-img" style="background-image:url(\'' + esc(c.image_url) + '\')"></div>' : '';
+      return '<div class="asdads-nat" data-asd-cid="' + esc(c.id) + '">' + im + '<div class="asdads-nat-body"><h4>' + esc(c.title) + '</h4>' + (c.body ? '<p>' + esc(c.body) + '</p>' : '') + '<a class="asdads-btn" data-asd-click href="' + esc(href) + '">' + esc(c.btn_text || 'Подробнее') + '</a></div></div>';
+    }
     var btn = '<a class="asdads-btn" data-asd-click href="' + esc(href) + '">' + esc(c.btn_text || 'Подробнее') + '</a>';
     if (c.layout === 'strip') {
       return '<div class="asdads-strip" data-asd-cid="' + esc(c.id) + '"><span>' + (c.title ? '<b>' + esc(c.title) + '</b> ' : '') + esc(c.body || '') + '</span>' + btn.replace('class="asdads-btn"', '') .replace('<a ', '<a ') + '</div>';
@@ -65,7 +79,9 @@
     var st = d.createElement('style'); st.id = 'asdads-css'; st.textContent = CSS; d.head.appendChild(st);
   }
 
-  function pick(list, slot, topics) {
+  // priority=true: «главная» реклама, показывается принудительно всем, темы не учитываются.
+  // ctr: {campaign_id: {v, c}} за 14 дней; вес автоматически сдвигается к креативам с лучшим CTR (с запасом на пробу новых).
+  function pick(list, slot, topics, ctr) {
     var now = Date.now();
     var ok = list.filter(function (c) {
       if (c.status !== 'live') return false;
@@ -73,11 +89,19 @@
       if (c.end_at && Date.parse(c.end_at) < now) return false;
       return !c.slots || !c.slots.length || c.slots.indexOf(slot) >= 0;
     });
-    var hit = ok.filter(function (c) { return c.topics && c.topics.some(function (t) { return topics.indexOf(t) >= 0; }); });
-    var pool = hit.length ? hit : ok.filter(function (c) { return !c.topics || !c.topics.length; });
+    var forced = ok.filter(function (c) { return c.priority; });
+    var pool;
+    if (forced.length) pool = forced;
+    else {
+      var hit = ok.filter(function (c) { return c.topics && c.topics.some(function (t) { return topics.indexOf(t) >= 0; }); });
+      pool = hit.length ? hit : ok.filter(function (c) { return !c.topics || !c.topics.length; });
+    }
     if (!pool.length) return null;
-    var sum = pool.reduce(function (a, c) { return a + Math.max(1, c.weight || 1); }, 0), r = Math.random() * sum;
-    for (var i = 0; i < pool.length; i++) { r -= Math.max(1, pool[i].weight || 1); if (r <= 0) return pool[i]; }
+    var p = pool.map(function (c) { var s = (ctr && ctr[c.id]) || { v: 0, c: 0 }; return (s.c + 1) / (s.v + 30); });
+    var pm = Math.max.apply(null, p);
+    var wts = pool.map(function (c, i) { return Math.max(1, c.weight || 1) * (ctr ? 0.4 + 0.6 * (p[i] / pm) : 1); });
+    var sum = wts.reduce(function (a, x) { return a + x; }, 0), r = Math.random() * sum;
+    for (var i = 0; i < pool.length; i++) { r -= wts[i]; if (r <= 0) return pool[i]; }
     return pool[0];
   }
 
@@ -102,17 +126,24 @@
       .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); });
   }
 
+  function loadCtr() {
+    if (!CFG.api || !CFG.key || CFG.mock) return Promise.resolve(null);
+    return fetch(CFG.api + '/rest/v1/rpc/ad_ctr', { method: 'POST', headers: hdr({ 'Content-Type': 'application/json' }), body: '{}' })
+      .then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) { var m = {}; rows.forEach(function (x) { m[x.campaign_id] = { v: x.views, c: x.clicks }; }); return m; }).catch(function () { return null; });
+  }
+
   function run() {
     var slots = d.querySelectorAll('[data-asd-slot]');
     if (!slots.length) return;
     inject();
     // Резервируем высоту, пока ждём ответ: data-h="220" (px), по умолчанию 0 (запасной контент уже занимает место).
     slots.forEach(function (el) { var h = el.getAttribute('data-h'); if (h) el.style.minHeight = h + 'px'; });
-    load().then(function (list) {
+    Promise.all([load(), loadCtr()]).then(function (res) {
+      var list = res[0], ctr = res[1];
       slots.forEach(function (el) {
         var slot = el.getAttribute('data-asd-slot');
         var topics = (el.getAttribute('data-topics') || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean);
-        var c = pick(list, slot, topics);
+        var c = pick(list, slot, topics, ctr);
         if (!c) return; // остаётся запасной контент
         var html = render(c, slot);
         if (!html) return;
