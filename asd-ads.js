@@ -56,7 +56,7 @@
     if (c.layout === 'banner') {
       if (!c.image_url || !IMG_OK.test(c.image_url)) return '';
       var m = c.image_mobile_url && IMG_OK.test(c.image_mobile_url) ? '<source media="(max-width:640px)" srcset="' + esc(c.image_mobile_url) + '">' : '';
-      return '<a class="asdads-bn" data-asd-click data-asd-cid="' + esc(c.id) + '" href="' + esc(href) + '"><picture>' + m + '<img src="' + esc(c.image_url) + '" alt="' + esc(c.title || '') + '" loading="lazy"></picture></a>';
+      return '<a class="asdads-bn" data-asd-click data-asd-cid="' + esc(c.id) + '" href="' + esc(href) + '"><picture>' + m + '<img src="' + esc(c.image_url) + '" alt="' + esc(c.title || '') + '" loading="lazy" onload="this.style.width=(this.naturalWidth/2)+\'px\'"></picture></a>';
     }
     if (c.layout === 'native') {
       var im = (c.image_url && IMG_OK.test(c.image_url)) ? '<div class="asdads-nat-img" style="background-image:url(\'' + esc(c.image_url) + '\')"></div>' : '';
