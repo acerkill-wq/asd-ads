@@ -37,7 +37,7 @@
     '.asdads-nat-img{flex:0 0 38%;background-size:cover;background-position:center;min-height:170px}.asdads-nat-body{flex:1;padding:18px 20px;min-width:0}' +
     '.asdads-nat-body h4{font-family:"Playfair Display",Georgia,serif;font-size:21px;line-height:1.25;color:#14264c;margin:0 0 8px;font-weight:800}.asdads-nat-body p{font-size:15px;line-height:1.5;margin:0 0 12px}' +
     '@media(max-width:640px){.asdads-nat{flex-direction:column;gap:0}.asdads-nat-img{flex-basis:auto;min-height:150px}}' +
-    '.asdr{position:fixed;top:96px;width:300px;z-index:60;display:none;border-radius:12px;overflow:hidden;background:linear-gradient(165deg,#14264c,#22397a 70%,#3a2a6b);color:#fff;font-family:Inter,-apple-system,Arial,sans-serif;box-shadow:0 10px 30px rgba(10,20,50,.28);padding:26px 22px 22px;box-sizing:border-box}' +
+    '.asdrail{position:fixed;top:96px;width:300px;z-index:60;display:none;transition:opacity .4s}.asdrail-x{position:absolute;top:-10px;right:-10px;width:26px;height:26px;border-radius:50%;background:#14264c;color:#fff;border:2px solid #fff;font-size:16px;line-height:1;cursor:pointer;z-index:2;padding:0}.asdrail .asdads-bn{margin:0}.asdrail .asdads-bn img{border-radius:12px;box-shadow:0 10px 30px rgba(10,20,50,.28)}.asdr{position:relative;width:300px;border-radius:12px;overflow:hidden;background:linear-gradient(165deg,#14264c,#22397a 70%,#3a2a6b);color:#fff;font-family:Inter,-apple-system,Arial,sans-serif;box-shadow:0 10px 30px rgba(10,20,50,.28);padding:26px 22px 22px;box-sizing:border-box}' +
     '.asdr *{box-sizing:border-box}.asdr-x{position:absolute;top:6px;right:8px;background:none;border:0;color:#fff;opacity:.6;font-size:22px;line-height:1;cursor:pointer;padding:4px 8px}.asdr-x:hover{opacity:1}' +
     '.asdr .asdads-tag{position:static;display:inline-block;margin-bottom:14px}.asdr-big{font-family:"Playfair Display",Georgia,serif;font-weight:900;font-size:78px;line-height:.9;color:#ff2c69}.asdr-cap{font-size:13px;line-height:1.4;color:#dfe5f5;margin:6px 0 16px}' +
     '.asdr h4{font-family:"Playfair Display",Georgia,serif;font-size:22px;line-height:1.2;margin:0 0 10px;font-weight:800;color:#fff}.asdr p{font-size:14px;line-height:1.5;margin:0 0 12px;color:#e8ecf8}.asdr ul{margin:0 0 16px;padding-left:18px;font-size:13.5px;line-height:1.45;color:#e8ecf8}.asdr .asdads-btn{display:block;text-align:center;width:100%}' +
@@ -59,10 +59,11 @@
     if (!href) return '';
     if (c.layout === 'rail') {
       var rl = (c.bullets || []).map(function (b) { return '<li>' + esc(b) + '</li>'; }).join('');
-      return '<div class="asdr" data-asd-cid="' + esc(c.id) + '"><button class="asdr-x" aria-label="Закрыть">&times;</button><span class="asdads-tag">' + esc(c.tag || 'Рекомендуем') + '</span>' + (c.big ? '<div class="asdr-big">' + esc(c.big) + '</div>' : '') + (c.caption ? '<div class="asdr-cap">' + esc(c.caption) + '</div>' : '') + '<h4>' + esc(c.title) + '</h4>' + (c.body ? '<p>' + esc(c.body) + '</p>' : '') + (rl ? '<ul>' + rl + '</ul>' : '') + '<a class="asdads-btn" data-asd-click href="' + esc(href) + '" target="_blank" rel="noopener">' + esc(c.btn_text || 'Подробнее') + '</a></div>';
+      return '<div class="asdr" data-asd-cid="' + esc(c.id) + '"><span class="asdads-tag">' + esc(c.tag || 'Рекомендуем') + '</span>' + (c.big ? '<div class="asdr-big">' + esc(c.big) + '</div>' : '') + (c.caption ? '<div class="asdr-cap">' + esc(c.caption) + '</div>' : '') + '<h4>' + esc(c.title) + '</h4>' + (c.body ? '<p>' + esc(c.body) + '</p>' : '') + (rl ? '<ul>' + rl + '</ul>' : '') + '<a class="asdads-btn" data-asd-click href="' + esc(href) + '" target="_blank" rel="noopener">' + esc(c.btn_text || 'Подробнее') + '</a></div>';
     }
     if (c.layout === 'banner') {
       if (!c.image_url || !IMG_OK.test(c.image_url)) return '';
+      var side = slot === 'side'; if (side && c.image_mobile_url && IMG_OK.test(c.image_mobile_url)) { return '<a class="asdads-bn" data-asd-click data-asd-cid="' + esc(c.id) + '" href="' + esc(href) + '" target="_blank" rel="noopener"><img src="' + esc(c.image_mobile_url) + '" alt="' + esc(c.title || '') + '" style="width:300px;max-width:100%"></a>'; }
       var m = c.image_mobile_url && IMG_OK.test(c.image_mobile_url) ? '<source media="(max-width:640px)" srcset="' + esc(c.image_mobile_url) + '">' : '';
       return '<a class="asdads-bn" data-asd-click data-asd-cid="' + esc(c.id) + '" href="' + esc(href) + '" target="_blank" rel="noopener"><picture>' + m + '<img src="' + esc(c.image_url) + '" alt="' + esc(c.title || '') + '" loading="lazy" onload="this.style.width=(this.naturalWidth/2)+\'px\'"></picture></a>';
     }
@@ -165,28 +166,39 @@
         } else { log('view', c, slot); }
         el.addEventListener('click', function (ev) { if (ev.target.closest && ev.target.closest('[data-asd-click],a')) log('click', c, slot); });
       });
-      // Боковая вертикальная реклама в «воздухе» справа от статьи: едет вместе с прокруткой.
+      // Боковая реклама в «воздухе» справа от статьи: едет вместе с прокруткой и по мере чтения сменяет креативы.
       try {
         var topicsAll = []; slots.forEach(function (el) { (el.getAttribute('data-topics') || '').split(',').forEach(function (t) { t = t.trim(); if (t && topicsAll.indexOf(t) < 0) topicsAll.push(t); }); });
-        var rc = pick(list.filter(function (x) { return x.layout === 'rail'; }), 'side', topicsAll, ctr);
+        var sideList = list.filter(function (x) { return x.slots && x.slots.indexOf('side') >= 0; });
         var closed = false; try { closed = w.sessionStorage.getItem('asdads_rail_closed') === '1'; } catch (e) {}
-        if (rc && !closed) {
-          var rh = render(rc, 'side');
-          if (rh) {
-            var rail = d.createElement('div'); rail.innerHTML = rh; rail = rail.firstChild; d.body.appendChild(rail);
-            var anchor = slots[0].getBoundingClientRect ? slots[0] : null;
-            var seen = false;
-            var place = function () {
-              var col = d.querySelector('[data-asd-slot]'); var r = col ? col.getBoundingClientRect() : null;
-              var left = r ? r.right + 28 : (w.innerWidth + 760) / 2 + 28;
-              var ok = w.innerWidth >= 1200 && left + 300 <= w.innerWidth - 8 && w.scrollY > 300;
-              rail.style.display = ok ? 'block' : 'none'; rail.style.left = left + 'px';
-              if (ok && !seen) { seen = true; log('view', rc, 'side'); }
-            };
-            w.addEventListener('scroll', place, { passive: true }); w.addEventListener('resize', place); place();
-            rail.querySelector('.asdr-x').addEventListener('click', function () { rail.remove(); try { w.sessionStorage.setItem('asdads_rail_closed', '1'); } catch (e) {} });
-            rail.addEventListener('click', function (ev) { if (ev.target.closest && ev.target.closest('a')) log('click', rc, 'side'); });
-          }
+        var queue = [], first = pick(sideList, 'side', topicsAll, ctr);
+        if (first && !closed) {
+          var rail = d.createElement('div'); rail.className = 'asdrail'; d.body.appendChild(rail);
+          var x = d.createElement('button'); x.className = 'asdrail-x'; x.setAttribute('aria-label', 'Закрыть'); x.innerHTML = '&times;'; rail.appendChild(x);
+          var holder = d.createElement('div'); rail.appendChild(holder);
+          var used = {}, cur = null, seen = false, visible = false, lastSwap = 0;
+          var nextCamp = function () {
+            var rest = sideList.filter(function (c) { return !used[c.id]; });
+            if (!rest.length) { used = {}; rest = sideList.slice(); }
+            var c = pick(rest, 'side', topicsAll, ctr) || rest[0]; used[c.id] = 1; return c;
+          };
+          var show = function (c) {
+            var h = render(c, 'side'); if (!h) return;
+            holder.style.opacity = 0;
+            setTimeout(function () { holder.innerHTML = h; holder.style.opacity = 1; cur = c; lastSwap = Date.now(); log('view', c, 'side'); }, 250);
+          };
+          holder.style.transition = 'opacity .25s';
+          var place = function () {
+            var col = d.querySelector('[data-asd-slot]'); var r = col ? col.getBoundingClientRect() : null;
+            var left = r ? r.right + 28 : (w.innerWidth + 760) / 2 + 28;
+            var ok = w.innerWidth >= 1200 && left + 300 <= w.innerWidth - 8 && w.scrollY > 300;
+            rail.style.display = ok ? 'block' : 'none'; rail.style.left = left + 'px'; visible = ok;
+            if (ok && !seen) { seen = true; used = {}; show(nextCamp()); }
+          };
+          w.addEventListener('scroll', place, { passive: true }); w.addEventListener('resize', place); place();
+          setInterval(function () { if (visible && cur && Date.now() - lastSwap > 20000 && sideList.length > 1) show(nextCamp()); }, 4000);
+          x.addEventListener('click', function () { rail.remove(); try { w.sessionStorage.setItem('asdads_rail_closed', '1'); } catch (e) {} });
+          rail.addEventListener('click', function (ev) { if (cur && ev.target.closest && ev.target.closest('a')) log('click', cur, 'side'); });
         }
       } catch (e) {}
     }).catch(function () { /* сервис недоступен: запасной контент остаётся */ });
