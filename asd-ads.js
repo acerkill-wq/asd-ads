@@ -140,14 +140,17 @@
     slots.forEach(function (el) { var h = el.getAttribute('data-h'); if (h) el.style.minHeight = h + 'px'; });
     Promise.all([load(), loadCtr()]).then(function (res) {
       var list = res[0], ctr = res[1];
+      var shown = 0;
       slots.forEach(function (el) {
+        // Не больше одной рекламы на странице, если у слота нет data-extra (чтобы баннеры не дублировались).
+        if (shown >= 1 && !el.hasAttribute('data-extra')) return;
         var slot = el.getAttribute('data-asd-slot');
         var topics = (el.getAttribute('data-topics') || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean);
         var c = pick(list, slot, topics, ctr);
         if (!c) return; // остаётся запасной контент
         var html = render(c, slot);
         if (!html) return;
-        el.innerHTML = html; el.style.minHeight = '';
+        el.innerHTML = html; el.style.minHeight = ''; shown++;
         if ('IntersectionObserver' in w) {
           var io = new IntersectionObserver(function (e) { if (e[0].isIntersecting) { io.disconnect(); log('view', c, slot); } }, { threshold: .5 });
           io.observe(el);
